@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
@@ -20,6 +21,8 @@ class CloudStorageApplicationTests {
 	private int port;
 
 	private WebDriver driver;
+	private NotePage notePage;
+	private ResultPage resultPage;
 
 	@BeforeAll
 	static void beforeAll() {
@@ -44,6 +47,11 @@ class CloudStorageApplicationTests {
 		Assertions.assertEquals("Login", driver.getTitle());
 	}
 
+	@Test
+	public void getSignupPage(){
+		driver.get("http://localhost:" + this.port + "/signup");
+		Assertions.assertEquals("Sign Up", driver.getTitle());
+	}
 	/**
 	 * PLEASE DO NOT DELETE THIS method.
 	 * Helper method for Udacity-supplied sanity checks.
@@ -86,6 +94,7 @@ class CloudStorageApplicationTests {
 		// You may have to modify the element "success-msg" and the sign-up 
 		// success message below depening on the rest of your code.
 		*/
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
 		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
 	}
 
@@ -99,7 +108,7 @@ class CloudStorageApplicationTests {
 	{
 		// Log in to our dummy account.
 		driver.get("http://localhost:" + this.port + "/login");
-		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 5);
 
 		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("inputUsername")));
 		WebElement loginUserName = driver.findElement(By.id("inputUsername"));
@@ -116,9 +125,29 @@ class CloudStorageApplicationTests {
 		loginButton.click();
 
 		webDriverWait.until(ExpectedConditions.titleContains("Home"));
-
 	}
 
+	/* Tests that home page is not accessible if user is not logged in */
+	@Test
+	public void testHomePageWithoutLogin(){
+		driver.get("http://localhost:" + this.port + "/home");
+		Assertions.assertEquals("Login", driver.getTitle());
+	}
+	@Test
+	public void testLogout(){
+		doMockSignUp("test","test","logout2","123");
+		doLogIn("logout2","123");
+
+		Assertions.assertEquals("Home", driver.getTitle());
+
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("logout-button")));
+		WebElement logoutButton = driver.findElement(By.id("logout-button"));
+		logoutButton.click();
+
+		driver.get("http://localhost:" + this.port + "/home");
+		Assertions.assertEquals("Login", driver.getTitle());
+	}
 	/**
 	 * PLEASE DO NOT DELETE THIS TEST. You may modify this test to work with the 
 	 * rest of your code. 
@@ -133,12 +162,88 @@ class CloudStorageApplicationTests {
 	@Test
 	public void testRedirection() {
 		// Create a test account
-		doMockSignUp("Redirection","Test","RT","123");
+		doMockSignUp("Redirection","Test","RT8","123");
 		
 		// Check if we have been redirected to the log in page.
 		Assertions.assertEquals("http://localhost:" + this.port + "/login", driver.getCurrentUrl());
 	}
 
+	/**------------ Notes functionality tests -----------*/
+	@Test
+	public void testAddNote(){
+		String title = "Todo";
+		String description = "This is test note";
+		notePage = new NotePage(this.driver);
+		resultPage = new ResultPage(this.driver);
+
+		doMockSignUp("Test","User","notetest18","123");
+		doLogIn("notetest18","123");
+
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+
+		notePage.addNote(title,description);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+		Assertions.assertTrue(driver.findElement(By.id("success")).isDisplayed());
+
+		resultPage.clickLink();
+		notePage.selectNotesTab();
+
+		Note noteAdded = notePage.getFirstNote();
+		Assertions.assertEquals(title, noteAdded.getNotetitle());
+		Assertions.assertEquals(description, noteAdded.getNotedescription());
+	}
+	@Test
+	public void testEditNote(){
+		String title = "Todo";
+		String description = "This is test note";
+		String newTitle = "New title";
+		String newDescription = "New description";
+		notePage = new NotePage(this.driver);
+		resultPage = new ResultPage(this.driver);
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+
+		doMockSignUp("Test","User","notetest14","123");
+		doLogIn("notetest14","123");
+
+		notePage.addNote(title,description);
+
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+		resultPage.clickLink();
+		notePage.selectNotesTab();
+
+		notePage.editNote(newTitle,newDescription);
+
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+		resultPage.clickLink();
+		notePage.selectNotesTab();
+
+		Note noteEdited = notePage.getFirstNote();
+		Assertions.assertEquals(newTitle, noteEdited.getNotetitle());
+		Assertions.assertEquals(newDescription, noteEdited.getNotedescription());
+	}
+	@Test
+	public void testDeleteNote(){
+		String title = "Test note";
+		String description = "This is test note";
+		notePage = new NotePage(this.driver);
+		resultPage = new ResultPage(this.driver);
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+
+		doMockSignUp("Test","User","notetest17","123");
+		doLogIn("notetest17","123");
+		notePage.addNote(title,description);
+
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+		resultPage.clickLink();
+		notePage.selectNotesTab();
+		notePage.deleteNote();
+
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
+		resultPage.clickLink();
+		notePage.selectNotesTab();
+		Assertions.assertTrue(notePage.isDeleted(title));
+
+	}
 	/**
 	 * PLEASE DO NOT DELETE THIS TEST. You may modify this test to work with the 
 	 * rest of your code. 
