@@ -31,8 +31,6 @@ public class NoteController {
         this.noteService.saveNote(note);
         model.addAttribute("success",true);
         return "result";
-//        model.addAttribute("notes",this.noteService.getAllNotesForUser(userid));
-//        return "home";
     }
 
 }
