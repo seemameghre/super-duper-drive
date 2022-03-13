@@ -24,7 +24,6 @@ class CloudStorageApplicationTests {
 	private WebDriver driver;
 	private NotePage notePage;
 	private CredentialPage credentialPage;
-	private ResultPage resultPage;
 
 	@BeforeAll
 	static void beforeAll() {
@@ -57,14 +56,7 @@ class CloudStorageApplicationTests {
 	public void getHomePage(){
 		driver.get("http://localhost:" + this.port + "/home");
 	}
-	public void goToNotes(){
-		getHomePage();
-		notePage.selectNotesTab();
-	}
-	public void goToCredentials(){
-		getHomePage();
-		credentialPage.selectCredentialTab();
-	}
+
 	/**
 	 * PLEASE DO NOT DELETE THIS method.
 	 * Helper method for Udacity-supplied sanity checks.
@@ -148,8 +140,8 @@ class CloudStorageApplicationTests {
 	}
 	@Test
 	public void testLogout(){
-		doMockSignUp("test","test","logout2","123");
-		doLogIn("logout2","123");
+		doMockSignUp("test","test","logout3","123");
+		doLogIn("logout3","123");
 
 		Assertions.assertEquals("Home", driver.getTitle());
 
@@ -175,7 +167,7 @@ class CloudStorageApplicationTests {
 	@Test
 	public void testRedirection() {
 		// Create a test account
-		doMockSignUp("Redirection","Test","RT8","123");
+		doMockSignUp("Redirection","Test","RT9","123");
 		
 		// Check if we have been redirected to the log in page.
 		Assertions.assertEquals("http://localhost:" + this.port + "/login", driver.getCurrentUrl());
@@ -187,18 +179,15 @@ class CloudStorageApplicationTests {
 		String title = "Todo";
 		String description = "This is test note";
 		notePage = new NotePage(this.driver);
-		resultPage = new ResultPage(this.driver);
+
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
 
-		doMockSignUp("Test","User","notetest18","123");
+//		doMockSignUp("Test","User","notetest18","123");
 		doLogIn("notetest18","123");
 
 		notePage.addNote(title,description);
-		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
-		Assertions.assertTrue(driver.findElement(By.id("success")).isDisplayed());
-
-		resultPage.clickLink();
-		notePage.selectNotesTab();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+		Assertions.assertTrue(driver.findElement(By.id("success-msg")).isDisplayed());
 
 		Note noteAdded = notePage.getFirstNote();
 		Assertions.assertEquals(title, noteAdded.getNotetitle());
@@ -211,19 +200,19 @@ class CloudStorageApplicationTests {
 		String newTitle = "New title";
 		String newDescription = "New description";
 		notePage = new NotePage(this.driver);
-		resultPage = new ResultPage(this.driver);
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
 
-		doMockSignUp("Test","User","notetest20","123");
+//		doMockSignUp("Test","User","notetest20","123");
 		doLogIn("notetest20","123");
 
 		notePage.addNote(title,description);
-		Assertions.assertTrue(resultPage.isSuccess());
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+		Assertions.assertTrue(driver.findElement(By.id("success-msg")).isDisplayed());
 
-		goToNotes();
 		notePage.editNote(newTitle,newDescription);
-
-		goToNotes();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+		Assertions.assertTrue(driver.findElement(By.id("success-msg")).isDisplayed());
+//		goToNotes();
 		Note noteEdited = notePage.getFirstNote();
 		Assertions.assertEquals(newTitle, noteEdited.getNotetitle());
 		Assertions.assertEquals(newDescription, noteEdited.getNotedescription());
@@ -233,18 +222,15 @@ class CloudStorageApplicationTests {
 		String title = "Test note";
 		String description = "This is test note";
 		notePage = new NotePage(this.driver);
-		resultPage = new ResultPage(this.driver);
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
 
-		doMockSignUp("Test","User","notetest21","123");
-		doLogIn("notetest21","123");
+//		doMockSignUp("Test","User","notetest21","123");
+		doLogIn("notetest20","123");
 		notePage.addNote(title,description);
 
-		goToNotes();
 		notePage.deleteNote();
-
-		Assertions.assertTrue(resultPage.isSuccess());
-		goToNotes();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+		Assertions.assertTrue(driver.findElement(By.id("success-msg")).isDisplayed());
 		Assertions.assertTrue(notePage.isDeleted(title));
 	}
 	/* --------------End of notes tests-----------------*/
@@ -256,20 +242,18 @@ class CloudStorageApplicationTests {
 		String password = "mypwd";
 
 		credentialPage = new CredentialPage(this.driver);
-		resultPage = new ResultPage(this.driver);
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
 
-		doMockSignUp("Test","User","cred4","123");
+//		doMockSignUp("Test","User","cred4","123");
 		doLogIn("cred4","123");
 
 		credentialPage.addCredentials(url,username,password);
-		Assertions.assertTrue(resultPage.isSuccess());
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+		Assertions.assertTrue(driver.findElement(By.id("success-msg")).isDisplayed());
 
-		goToCredentials();
 		Credential credentialAdded = credentialPage.getFirstCredential();
 		Assertions.assertEquals(url, credentialAdded.getUrl());
 		Assertions.assertEquals(username, credentialAdded.getUsername());
-		Assertions.assertEquals(password, credentialAdded.getPassword());
 	}
 	@Test
 	public void testEditCredential(){
@@ -281,24 +265,22 @@ class CloudStorageApplicationTests {
 		String newPassword = "mynewpwd";
 
 		credentialPage = new CredentialPage(this.driver);
-		resultPage = new ResultPage(this.driver);
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
 
-		doMockSignUp("Test","User","cred5","123");
+//		doMockSignUp("Test","User","cred5","123");
 		doLogIn("cred5","123");
 
 		credentialPage.addCredentials(url,username,password);
-		Assertions.assertTrue(resultPage.isSuccess());
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+		Assertions.assertTrue(driver.findElement(By.id("success-msg")).isDisplayed());
 
-		goToCredentials();
 		credentialPage.editCredentials(newUrl, newUsername, newPassword);
-		Assertions.assertTrue(resultPage.isSuccess());
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+		Assertions.assertTrue(driver.findElement(By.id("success-msg")).isDisplayed());
 
-		goToCredentials();
 		Credential credentialAdded = credentialPage.getFirstCredential();
 		Assertions.assertEquals(newUrl, credentialAdded.getUrl());
 		Assertions.assertEquals(newUsername, credentialAdded.getUsername());
-		Assertions.assertEquals(newPassword, credentialAdded.getPassword());
 	}
 	@Test
 	public void testDeleteCredential(){
@@ -307,20 +289,19 @@ class CloudStorageApplicationTests {
 		String password = "mypwd";
 
 		credentialPage = new CredentialPage(this.driver);
-		resultPage = new ResultPage(this.driver);
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
 
-		doMockSignUp("Test","User","cred6","123");
-		doLogIn("cred6","123");
+//		doMockSignUp("Test","User","cred6","123");
+		doLogIn("cred5","123");
 
 		credentialPage.addCredentials(url,username,password);
-		Assertions.assertTrue(resultPage.isSuccess());
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+		Assertions.assertTrue(driver.findElement(By.id("success-msg")).isDisplayed());
 
-		goToCredentials();
 		credentialPage.delete();
-		Assertions.assertTrue(resultPage.isSuccess());
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+		Assertions.assertTrue(driver.findElement(By.id("success-msg")).isDisplayed());
 
-		goToCredentials();
 		Assertions.assertTrue(credentialPage.isDeleted(url));
 	}
 	/***********--End of Credential tests-----------*/
@@ -339,8 +320,8 @@ class CloudStorageApplicationTests {
 	@Test
 	public void testBadUrl() {
 		// Create a test account
-		doMockSignUp("URL","Test","UT1","123");
-		doLogIn("UT", "123");
+		doMockSignUp("URL","Test","UT3","123");
+		doLogIn("UT3", "123");
 		
 		// Try to access a random made-up URL.
 		driver.get("http://localhost:" + this.port + "/some-random-page");
@@ -363,9 +344,10 @@ class CloudStorageApplicationTests {
 	 */
 	@Test
 	public void testLargeUpload() {
+
 		// Create a test account
-		doMockSignUp("Large File","Test","LFT","123");
-		doLogIn("LFT", "123");
+//		doMockSignUp("Large File","Test","LFT4","123");
+		doLogIn("LFT4", "123");
 
 		// Try to upload an arbitrary large file
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
@@ -377,11 +359,16 @@ class CloudStorageApplicationTests {
 
 		WebElement uploadButton = driver.findElement(By.id("uploadButton"));
 		uploadButton.click();
-		try {
+
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("error-msg")));
+		Assertions.assertTrue(driver.findElement(By.id("error-msg")).isDisplayed());
+		Assertions.assertEquals("File size exceeded the limit of 1MB.",driver.findElement(By.id("error-msg")).getText());
+
+/*		try {
 			webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.id("success")));
 		} catch (org.openqa.selenium.TimeoutException e) {
 			System.out.println("Large File upload failed");
-		}
+		}*/
 		Assertions.assertFalse(driver.getPageSource().contains("HTTP Status 403 – Forbidden"));
 
 	}

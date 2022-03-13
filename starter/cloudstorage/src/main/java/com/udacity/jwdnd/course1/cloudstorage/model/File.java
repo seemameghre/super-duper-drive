@@ -6,7 +6,7 @@ public class File {
     private String contenttype;
     private Long filesize;
     private Integer userid;
-    private byte[] userdata;
+    private byte[] filedata;
 
     public Integer getFileid() {
         return fileid;
@@ -48,11 +48,11 @@ public class File {
         this.userid = userid;
     }
 
-    public byte[] getUserdata() {
-        return userdata;
+    public byte[] getFiledata() {
+        return filedata;
     }
 
-    public void setUserdata(byte[] userdata) {
-        this.userdata = userdata;
+    public void setFiledata(byte[] filedata) {
+        this.filedata = filedata;
     }
 }

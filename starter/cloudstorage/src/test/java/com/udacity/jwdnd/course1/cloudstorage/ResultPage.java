@@ -21,6 +21,12 @@ public class ResultPage {
     @FindBy(id = "success")
     private WebElement successMessage;
 
+    @FindBy(id = "error")
+    private WebElement error;
+
+    @FindBy(id = "errormsg")
+    private WebElement errorMessage;
+
     public void clickLink(){
         link.click();
     }
@@ -29,5 +35,12 @@ public class ResultPage {
         webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success")));
         return successMessage.isDisplayed();
     }
-
+    public boolean isError(){
+        webDriverWait.until(ExpectedConditions.visibilityOf(error));
+        return error.isDisplayed();
+    }
+    public String getErrorMsg(){
+        webDriverWait.until(ExpectedConditions.visibilityOf(errorMessage));
+        return errorMessage.getText();
+    }
 }

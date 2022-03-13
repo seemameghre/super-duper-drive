@@ -85,6 +85,7 @@ public class NotePage {
         submitButton.click();
     }
     public void deleteNote(){
+        selectNotesTab();
         webDriverWait.until(ExpectedConditions.visibilityOf(deleteLink));
         deleteLink.click();
     }
